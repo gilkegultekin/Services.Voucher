@@ -1,10 +1,11 @@
 ﻿using NSubstitute;
+using Services.Voucher.Application.Repository;
 using Services.Voucher.Controllers;
-using Services.Voucher.Models;
-using Services.Voucher.Repository;
+using Services.Voucher.Domain.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Services.Voucher.Test.Unit.Controllers
@@ -12,17 +13,16 @@ namespace Services.Voucher.Test.Unit.Controllers
     public class VoucherControllerTests
     {
         private readonly VoucherController _controller;
-        private readonly VoucherRepository _repository;
+        private readonly IVoucherRepository _repository;
 
         public VoucherControllerTests()
         {
-            _controller = new VoucherController();
-            _repository = Substitute.For<VoucherRepository>();
-            _controller.Repository = _repository;
+            _repository = Substitute.For<IVoucherRepository>();
+            _controller = new VoucherController(_repository);
         }
 
         [Fact]
-        public void Get_ShouldReturnAllVouchers_WhenNoCountIsProvided()
+        public async Task Get_ShouldReturnAllVouchers_WhenNoCountIsProvided()
         {
             // Arrange
             var vouchers = new List<VoucherModel>();
@@ -36,14 +36,14 @@ namespace Services.Voucher.Test.Unit.Controllers
             _repository.GetVouchers().Returns(vouchers);
 
             // Act
-            var result = _controller.Get();
+            var result = await _controller.Get();
 
             // Assert
             Assert.Equal(vouchers.Count(), result.Count());
         }
 
         [Fact]
-        public void Get_ShouldReturnTheRequestedAmountOfVouchers_WhenACountIsProvided()
+        public async Task Get_ShouldReturnTheRequestedAmountOfVouchers_WhenACountIsProvided()
         {
             // Arrange
             int count = 5;
@@ -58,7 +58,7 @@ namespace Services.Voucher.Test.Unit.Controllers
             _repository.GetVouchers().Returns(vouchers);
 
             // Act
-            var result = _controller.Get(count);
+            var result = await _controller.Get(count);
 
             // Assert
             Assert.Equal(count, result.Count());
@@ -71,7 +71,7 @@ namespace Services.Voucher.Test.Unit.Controllers
         }
 
         [Fact]
-        public void GetVouchersByName_ShouldReturnAllVouchersWithTheGivenSearchString_WhenVoucherExists()
+        public async Task GetVouchersByName_ShouldReturnAllVouchersWithTheGivenSearchString_WhenVoucherExists()
         {
             // Arrange
             var vouchers = new List<VoucherModel>();
@@ -81,7 +81,7 @@ namespace Services.Voucher.Test.Unit.Controllers
             _repository.GetVouchers().Returns(vouchers);
 
             // Act
-            var result = _controller.GetVouchersByName("A");
+            var result = await _controller.GetVouchersByName("A");
 
             // Assert
             Assert.Equal(result, new List<VoucherModel>() { vouchers.ElementAt(0), vouchers.ElementAt(1) });

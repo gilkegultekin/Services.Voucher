@@ -1,4 +1,5 @@
 using Services.Voucher.Controllers;
+using Services.Voucher.FileDB;
 using System;
 using Xunit;
 
@@ -10,7 +11,7 @@ namespace Services.Voucher.Test.Performance.Controllers
 
         public VoucherControllerTests()
         {
-            _controller = new VoucherController();
+            _controller = new VoucherController(new VoucherRepository());
         }
 
         [Fact]

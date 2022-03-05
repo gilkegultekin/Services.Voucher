@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Services.Voucher.Models;
-using Services.Voucher.Repository;
+using Services.Voucher.Application.Repository;
+using Services.Voucher.Domain.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Services.Voucher.Controllers
 {
@@ -11,13 +12,18 @@ namespace Services.Voucher.Controllers
     [Route("[controller]")]
     public class VoucherController : ControllerBase
     {
-        private VoucherRepository _voucherRepository;
+        private readonly IVoucherRepository _voucherRepository;
+
+        public VoucherController(IVoucherRepository voucherRepository)
+        {
+            _voucherRepository = voucherRepository;
+        }
 
         [HttpGet]
         [Route("[action]")]
-        public IEnumerable<VoucherModel> Get(int count = 0)
+        public async Task<IEnumerable<VoucherModel>> Get(int count = 0)
         {
-            var vouchers = Repository.GetVouchers();
+            var vouchers = await _voucherRepository.GetVouchers();
             if (count == 0)
             {
                 count = vouchers.Count();
@@ -32,9 +38,9 @@ namespace Services.Voucher.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public VoucherModel GetVoucherById(Guid id)
+        public async Task<VoucherModel> GetVoucherById(Guid id)
         {
-            var vouchers = Repository.GetVouchers();
+            var vouchers = await _voucherRepository.GetVouchers();
             VoucherModel voucher = null;
             for (var i = 0; i < vouchers.Count(); i++)
             {
@@ -49,9 +55,9 @@ namespace Services.Voucher.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public IEnumerable<VoucherModel> GetVouchersByName(string name)
+        public async Task<IEnumerable<VoucherModel>> GetVouchersByName(string name)
         {
-            var vouchers = Repository.GetVouchers();
+            var vouchers = await _voucherRepository.GetVouchers();
             var returnVouchers = new List<VoucherModel>();
             for (var i = 0; i < vouchers.Count(); i++)
             {
@@ -76,18 +82,6 @@ namespace Services.Voucher.Controllers
         public VoucherModel GetCheapestVoucherByProductCode(string productCode)
         {
             throw new NotImplementedException();
-        }
-
-        public VoucherRepository Repository
-        {
-            get
-            {
-                return _voucherRepository ?? (_voucherRepository = new VoucherRepository());
-            }
-            set
-            {
-                _voucherRepository = value;
-            }
         }
     }
 }

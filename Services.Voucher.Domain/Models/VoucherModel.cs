@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Services.Voucher.Models
+namespace Services.Voucher.Domain.Models
 {
     public class VoucherModel
     {
