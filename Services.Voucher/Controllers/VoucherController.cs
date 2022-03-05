@@ -21,19 +21,10 @@ namespace Services.Voucher.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<IEnumerable<VoucherModel>> Get(int count = 0)
+        public async Task<IEnumerable<VoucherModel>> Get(int take = 1000, int skip = 0)
         {
             var vouchers = await _voucherRepository.GetVouchers();
-            if (count == 0)
-            {
-                count = vouchers.Count();
-            }
-            var returnVouchers = new List<VoucherModel>();
-            for (var i = 0; i < count; i++)
-            {
-                returnVouchers.Add(vouchers.ElementAt(i));
-            }
-            return returnVouchers;
+            return vouchers.Skip(skip).Take(take);
         }
 
         [HttpGet]

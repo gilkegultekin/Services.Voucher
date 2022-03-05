@@ -1,6 +1,7 @@
 using Services.Voucher.Controllers;
 using Services.Voucher.FileDB;
 using System;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Services.Voucher.Test.Performance.Controllers
@@ -15,13 +16,13 @@ namespace Services.Voucher.Test.Performance.Controllers
         }
 
         [Fact]
-        public void Get_ShouldBePerformant()
+        public async Task Get_ShouldBePerformant()
         {
             var startTime = DateTime.Now;
 
             for (var i = 0; i < 1000; i++)
             {
-                _controller.Get();
+                await _controller.Get();
             }
 
             var elapsed = DateTime.Now.Subtract(startTime).TotalMilliseconds;
@@ -29,13 +30,13 @@ namespace Services.Voucher.Test.Performance.Controllers
         }
 
         [Fact]
-        public void Get_ShouldBePerformantWhenReturningASubset()
+        public async Task Get_ShouldBePerformantWhenReturningASubset()
         {
             var startTime = DateTime.Now;
 
             for (var i = 0; i < 100000; i++)
             {
-                _controller.Get(1000);
+                await _controller.Get(1000);
             }
 
             var elapsed = DateTime.Now.Subtract(startTime).TotalMilliseconds;
