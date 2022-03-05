@@ -4,13 +4,16 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using Services.Voucher.Application.Repository;
 using Services.Voucher.EntityFramework.Contexts;
+using Services.Voucher.EntityFramework.MapperProfiles;
 using Services.Voucher.EntityFramework.Repository;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 
 namespace Services.Voucher
 {
@@ -32,6 +35,31 @@ namespace Services.Voucher
             {
                 builder.UseInMemoryDatabase(databaseName: "VoucherDB");
             });
+            //TODO: Find a better way to register these profiles. Probably have to use reflection to find all subclasses of Profile.
+            services.AddAutoMapper(Assembly.GetExecutingAssembly(), typeof(VoucherEntityProfile).Assembly);
+            services.AddSwaggerGen(options =>
+            {
+                options.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Version = "v1",
+                    Title = "Domino's Voucher API",
+                    Description = "An ASP.NET Core Web API for managing vouchers",
+                    TermsOfService = new Uri("https://www.dominos.nl/over-dominos/algemene-voorwaarden"),
+                    Contact = new OpenApiContact
+                    {
+                        Name = "Contact",
+                        Url = new Uri("https://www.dominos.nl/over-dominos/contact")
+                    },
+                    License = new OpenApiLicense
+                    {
+                        Name = "License",
+                        Url = new Uri("https://example.com/license")
+                    }
+                });
+
+                var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -43,6 +71,9 @@ namespace Services.Voucher
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseSwagger();
+            app.UseSwaggerUI();
 
             app.UseHttpsRedirection();
 

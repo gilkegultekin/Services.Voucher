@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
+using Services.Voucher.Application.Dto;
 using Services.Voucher.Application.Repository;
 using Services.Voucher.Domain.Models;
 using System;
@@ -8,57 +10,71 @@ using System.Threading.Tasks;
 
 namespace Services.Voucher.Controllers
 {
+    /// <summary>
+    /// An API controller that operates on Voucher objects.
+    /// </summary>
     [ApiController]
     [Route("[controller]")]
+    [Produces("application/json")]
     public class VoucherController : ControllerBase
     {
         private readonly IVoucherRepository _voucherRepository;
+        private readonly IMapper _mapper;
 
-        public VoucherController(IVoucherRepository voucherRepository)
+        /// <summary>
+        /// Initializes an instance of the <see cref="VoucherController"/> object.
+        /// </summary>
+        /// <param name="voucherRepository">A repository implementation that manages voucher objects.</param>
+        /// <param name="mapper">An IMapper implementation. Provided by AutoMapper.</param>
+        public VoucherController(IVoucherRepository voucherRepository, IMapper mapper)
         {
             _voucherRepository = voucherRepository;
+            _mapper = mapper;
         }
 
+        /// <summary>
+        /// Gets voucher objects in a paged manner.
+        /// </summary>
+        /// <param name="take">Indicates page size. The default value is 1000.</param>
+        /// <param name="skip">The number of voucher objects to skip. The default value is 0.</param>
+        /// <returns>A collection of voucher dto objects.</returns>
         [HttpGet]
-        [Route("[action]")]
-        public async Task<IEnumerable<VoucherModel>> Get(int take = 1000, int skip = 0)
+        [Route("")]
+        public async Task<ActionResult<IEnumerable<VoucherDto>>> Get(int take = 1000, int skip = 0)
         {
             var vouchers = await _voucherRepository.GetVouchers();
-            return vouchers.Skip(skip).Take(take);
+            return Ok(_mapper.Map<IEnumerable<VoucherDto>>(vouchers.Skip(skip).Take(take)));
         }
 
+        /// <summary>
+        /// Looks up a voucher object by its id.
+        /// </summary>
+        /// <param name="id">The id of requested the voucher object.</param>
+        /// <returns>A single voucher object.</returns>
         [HttpGet]
-        [Route("[action]")]
-        public async Task<VoucherModel> GetVoucherById(Guid id)
+        [Route("{id}")]
+        public async Task<ActionResult<VoucherDto>> GetVoucherById(Guid id)
         {
-            var vouchers = await _voucherRepository.GetVouchers();
-            VoucherModel voucher = null;
-            for (var i = 0; i < vouchers.Count(); i++)
+            var voucher = await _voucherRepository.GetVoucherById(id);
+            if (voucher == null)
             {
-                if (vouchers.ElementAt(i).Id == id)
-                {
-                    voucher = vouchers.ElementAt(i);
-                }
+                return NotFound();
             }
 
-            return voucher;
+            return Ok(_mapper.Map<VoucherDto>(voucher));
         }
 
+        /// <summary>
+        /// Looks up voucher objects by their name.
+        /// </summary>
+        /// <param name="name">The name of the requested voucher objects.</param>
+        /// <returns>A collection of voucher objects.</returns>
         [HttpGet]
         [Route("[action]")]
-        public async Task<IEnumerable<VoucherModel>> GetVouchersByName(string name)
+        public async Task<ActionResult<IEnumerable<VoucherDto>>> GetVouchersByName(string name)
         {
-            var vouchers = await _voucherRepository.GetVouchers();
-            var returnVouchers = new List<VoucherModel>();
-            for (var i = 0; i < vouchers.Count(); i++)
-            {
-                if (vouchers.ElementAt(i).Name == name)
-                {
-                    returnVouchers.Add(vouchers.ElementAt(i));
-                }
-            }
-
-            return returnVouchers.ToArray();
+            var vouchers = await _voucherRepository.GetVouchersByName(name);
+            return Ok(_mapper.Map<IEnumerable<VoucherDto>>(vouchers));
         }
 
         [HttpGet]
