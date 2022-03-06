@@ -39,7 +39,8 @@ namespace Services.Voucher
             .UseSerilog((context, services, configuration) => configuration
             .ReadFrom.Configuration(context.Configuration)
             .ReadFrom.Services(services)
-            .Enrich.FromLogContext())
+            .Enrich.FromLogContext()
+            .Enrich.WithCorrelationIdHeader())
             .ConfigureWebHostDefaults(webBuilder =>
             {
                 webBuilder.UseStartup<Startup>();

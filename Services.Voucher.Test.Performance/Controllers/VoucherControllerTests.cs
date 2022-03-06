@@ -26,7 +26,7 @@ namespace Services.Voucher.Test.Performance.Controllers
             .UseInMemoryDatabase(databaseName: "PerformanceTestDB")
             .Options;
             var context = new VoucherContext(options);
-            var repository = new VoucherRepository(context, mapper);
+            var repository = new VoucherRepository(context, mapper, null);
             _controller = new VoucherController(repository, mapper);
         }
 

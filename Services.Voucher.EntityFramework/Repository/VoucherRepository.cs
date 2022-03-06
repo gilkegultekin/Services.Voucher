@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Services.Voucher.Application.Repository;
 using Services.Voucher.Domain.Models;
 using Services.Voucher.EntityFramework.Contexts;
@@ -17,21 +18,24 @@ namespace Services.Voucher.EntityFramework.Repository
     {
         private readonly VoucherContext _voucherContext;
         private readonly IMapper _mapper;
+        private readonly ILogger<VoucherRepository> _logger;
 
         /// <summary>
         /// Initializes an instance of the <see cref="VoucherRepository"/> object.
         /// </summary>
         /// <param name="voucherContext">A DbContext instance to access the database.</param>
         /// /// <param name="mapper">An IMapper implementation. Provided by AutoMapper.</param>
-        public VoucherRepository(VoucherContext voucherContext, IMapper mapper)
+        public VoucherRepository(VoucherContext voucherContext, IMapper mapper, ILogger<VoucherRepository> logger)
         {
             _voucherContext = voucherContext;
             _mapper = mapper;
+            _logger = logger;
         }
 
         /// <inheritdoc/>
         public async Task<IEnumerable<VoucherModel>> GetVouchers()
         {
+            _logger.LogInformation("Inside VoucherRepository.GetVouchers");
             return _mapper.Map<IEnumerable<VoucherModel>>(_voucherContext.Vouchers);
         }
 

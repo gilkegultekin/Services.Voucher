@@ -32,6 +32,10 @@ namespace Services.Voucher
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+
+            //Required by Serilog's CorrelationId enricher.
+            services.AddHttpContextAccessor();
+
             services.AddScoped<IVoucherRepository, VoucherRepository>();
             services.AddDbContextPool<VoucherContext>(builder =>
             {
