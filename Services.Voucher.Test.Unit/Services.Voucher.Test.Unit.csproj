@@ -17,6 +17,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Services.Voucher.Application\Services.Voucher.Application.csproj" />
     <ProjectReference Include="..\Services.Voucher.Domain\Services.Voucher.Domain.csproj" />
+    <ProjectReference Include="..\Services.Voucher.Test.Core\Services.Voucher.Test.Core.csproj" />
     <ProjectReference Include="..\Services.Voucher\Services.Voucher.csproj" />
   </ItemGroup>
 

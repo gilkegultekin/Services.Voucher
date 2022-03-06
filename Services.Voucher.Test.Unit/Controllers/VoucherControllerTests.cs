@@ -1,7 +1,11 @@
-﻿using NSubstitute;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
+using NSubstitute;
+using Services.Voucher.Application.Dto;
 using Services.Voucher.Application.Repository;
 using Services.Voucher.Controllers;
 using Services.Voucher.Domain.Models;
+using Services.Voucher.Test.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,15 +14,23 @@ using Xunit;
 
 namespace Services.Voucher.Test.Unit.Controllers
 {
-    public class VoucherControllerTests
+    public class VoucherControllerTests : TestBase
     {
         private readonly VoucherController _controller;
         private readonly IVoucherRepository _repository;
+        private readonly IMapper _mapper;
 
         public VoucherControllerTests()
         {
             _repository = Substitute.For<IVoucherRepository>();
-            _controller = new VoucherController(_repository);
+            var config = new MapperConfiguration(opts =>
+            {
+                // Add your mapper profile configs or mappings here
+                opts.CreateMap<VoucherModel, VoucherDto>();
+            });
+
+            _mapper = config.CreateMapper(); // Use this mapper to instantiate your class
+            _controller = new VoucherController(_repository, _mapper);
         }
 
         [Fact]
@@ -34,12 +46,15 @@ namespace Services.Voucher.Test.Unit.Controllers
                 });
             }
             _repository.GetVouchers().Returns(vouchers);
+            
 
             // Act
             var result = await _controller.Get();
+            var resultCollection = ParseActionResultAsOk<IEnumerable<VoucherDto>>(result.Result);
 
             // Assert
-            Assert.Equal(vouchers.Count(), result.Count());
+            Assert.IsAssignableFrom<OkObjectResult>(result.Result);
+            Assert.Equal(vouchers.Count(), resultCollection.Count());
         }
 
         [Fact]
@@ -59,9 +74,11 @@ namespace Services.Voucher.Test.Unit.Controllers
 
             // Act
             var result = await _controller.Get(count);
+            var resultCollection = ParseActionResultAsOk<IEnumerable<VoucherDto>>(result.Result);
 
             // Assert
-            Assert.Equal(count, result.Count());
+            Assert.IsAssignableFrom<OkObjectResult>(result.Result);
+            Assert.Equal(count, resultCollection.Count());
         }
 
         [Fact]
@@ -78,13 +95,18 @@ namespace Services.Voucher.Test.Unit.Controllers
             vouchers.Add(new VoucherModel { Id = new Guid(), Name = "A" });
             vouchers.Add(new VoucherModel { Id = new Guid(), Name = "A" });
             vouchers.Add(new VoucherModel { Id = new Guid(), Name = "B" });
-            _repository.GetVouchers().Returns(vouchers);
+            _repository.GetVouchersByName("A").Returns(vouchers);
+            //TODO: Fix this unit test. Will probably have to use in memory db instead of mocking the repo direcly.
 
             // Act
             var result = await _controller.GetVouchersByName("A");
+            var resultCollection = ParseActionResultAsOk<IEnumerable<VoucherDto>>(result.Result);
 
             // Assert
-            Assert.Equal(result, new List<VoucherModel>() { vouchers.ElementAt(0), vouchers.ElementAt(1) });
+            Assert.IsAssignableFrom<OkObjectResult>(result.Result);
+            Assert.Equal(2, resultCollection.Count());
+            Assert.Equal(resultCollection.First().Id, vouchers.ElementAt(0).Id);
+            Assert.Equal(resultCollection.ElementAt(1).Id, vouchers.ElementAt(1).Id);
         }
 
         [Fact]

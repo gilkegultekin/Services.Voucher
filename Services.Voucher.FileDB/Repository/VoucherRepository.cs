@@ -6,13 +6,18 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace Services.Voucher.FileDB
+namespace Services.Voucher.FileDB.Repository
 {
     public class VoucherRepository : IVoucherRepository
     {
         internal string DataFilename = $"{AppDomain.CurrentDomain.BaseDirectory}data.json";
 
         private IEnumerable<VoucherModel> _vouchers;
+
+        public Task<VoucherModel> GetVoucherById(Guid id)
+        {
+            throw new NotImplementedException();
+        }
 
         public Task<IEnumerable<VoucherModel>> GetVouchers()
         {
@@ -22,6 +27,11 @@ namespace Services.Voucher.FileDB
                 _vouchers = JsonConvert.DeserializeObject<IEnumerable<VoucherModel>>(text);
             }
             return Task.FromResult(_vouchers);
+        }
+
+        public Task<IEnumerable<VoucherModel>> GetVouchersByName(string name)
+        {
+            throw new NotImplementedException();
         }
     }
 }

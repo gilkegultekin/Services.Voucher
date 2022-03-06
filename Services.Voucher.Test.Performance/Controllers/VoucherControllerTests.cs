@@ -1,5 +1,8 @@
+using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using Services.Voucher.Controllers;
-using Services.Voucher.FileDB;
+using Services.Voucher.EntityFramework.Contexts;
+using Services.Voucher.EntityFramework.Repository;
 using System;
 using System.Threading.Tasks;
 using Xunit;
@@ -12,7 +15,18 @@ namespace Services.Voucher.Test.Performance.Controllers
 
         public VoucherControllerTests()
         {
-            _controller = new VoucherController(new VoucherRepository());
+            var config = new MapperConfiguration(opts =>
+            {
+                // Add your mapper profile configs or mappings here
+            });
+
+            var mapper = config.CreateMapper(); // Use this mapper to instantiate your class
+            var options = new DbContextOptionsBuilder<VoucherContext>()
+            .UseInMemoryDatabase(databaseName: "PerformanceTestDB")
+            .Options;
+            var context = new VoucherContext(options);
+            var repository = new VoucherRepository(context, mapper);
+            _controller = new VoucherController(repository, mapper);
         }
 
         [Fact]
