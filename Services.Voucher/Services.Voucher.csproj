@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Services.Voucher.Application\Services.Voucher.Application.csproj" />
+    <ProjectReference Include="..\Services.Voucher.Core\Services.Voucher.Core.csproj" />
     <ProjectReference Include="..\Services.Voucher.Domain\Services.Voucher.Domain.csproj" />
     <ProjectReference Include="..\Services.Voucher.EntityFramework\Services.Voucher.EntityFramework.csproj" />
   </ItemGroup>

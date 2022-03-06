@@ -7,6 +7,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using Services.Voucher.Application.Repository;
+using Services.Voucher.Core.Extensions;
 using Services.Voucher.EntityFramework.Contexts;
 using Services.Voucher.EntityFramework.MapperProfiles;
 using Services.Voucher.EntityFramework.Repository;
@@ -71,6 +72,8 @@ namespace Services.Voucher
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseGlobalExceptionHandler();
 
             app.UseSwagger();
             app.UseSwaggerUI();

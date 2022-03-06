@@ -40,6 +40,7 @@ namespace Services.Voucher.Controllers
         /// <returns>A collection of voucher dto objects.</returns>
         [HttpGet]
         [Route("")]
+        [ProducesResponseType(200)]
         public async Task<ActionResult<IEnumerable<VoucherDto>>> Get(int take = 1000, int skip = 0)
         {
             var vouchers = await _voucherRepository.GetVouchers();
@@ -53,6 +54,8 @@ namespace Services.Voucher.Controllers
         /// <returns>A single voucher object.</returns>
         [HttpGet]
         [Route("{id}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
         public async Task<ActionResult<VoucherDto>> GetVoucherById(Guid id)
         {
             var voucher = await _voucherRepository.GetVoucherById(id);
@@ -71,6 +74,7 @@ namespace Services.Voucher.Controllers
         /// <returns>A collection of voucher objects.</returns>
         [HttpGet]
         [Route("[action]")]
+        [ProducesResponseType(200)]
         public async Task<ActionResult<IEnumerable<VoucherDto>>> GetVouchersByName(string name)
         {
             var vouchers = await _voucherRepository.GetVouchersByName(name);
