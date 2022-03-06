@@ -52,5 +52,12 @@ namespace Services.Voucher.EntityFramework.Repository
             var vouchers = await _voucherContext.Vouchers.Where(v => v.Name == name).ToArrayAsync();
             return _mapper.Map<IEnumerable<VoucherModel>>(vouchers);
         }
+
+        /// <inheritdoc/>
+        public async Task<IEnumerable<VoucherModel>> SearchVouchersByName(string searchText)
+        {
+            var vouchers = _voucherContext.Vouchers.Where(v => v.Name.Contains(searchText));
+            return _mapper.Map<IEnumerable<VoucherModel>>(vouchers);
+        }
     }
 }

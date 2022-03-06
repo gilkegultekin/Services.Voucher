@@ -29,5 +29,12 @@ namespace Services.Voucher.Application.Repository
         /// <param name="name">The name of the requested vouchers.</param>
         /// <returns>A collection of voucher entities.</returns>
         Task<IEnumerable<VoucherModel>> GetVouchersByName(string name);
+
+        /// <summary>
+        /// Searches for vouchers whose name contains the search text.
+        /// </summary>
+        /// <param name="searchText">The text to search for in the name field.</param>
+        /// <returns>A collection of voucher entities.</returns>
+        Task<IEnumerable<VoucherModel>> SearchVouchersByName(string searchText);
     }
 }

@@ -4,6 +4,7 @@ using Services.Voucher.Application.Dto;
 using Services.Voucher.Application.Repository;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -34,13 +35,13 @@ namespace Services.Voucher.Controllers
         /// <summary>
         /// Gets voucher objects in a paged manner.
         /// </summary>
-        /// <param name="take">Indicates page size. The default value is 1000.</param>
+        /// <param name="take">Indicates page size. The default value is 1000. Max value is 8192.</param>
         /// <param name="skip">The number of voucher objects to skip. The default value is 0.</param>
         /// <returns>A collection of voucher dto objects.</returns>
         [HttpGet]
         [Route("")]
         [ProducesResponseType(200)]
-        public async Task<ActionResult<IEnumerable<VoucherDto>>> Get(int take = 1000, int skip = 0)
+        public async Task<ActionResult<IEnumerable<VoucherDto>>> Get([Range(0, 8192)] int take = 1000, int skip = 0)
         {
             var vouchers = await _voucherRepository.GetVouchers();
             return Ok(_mapper.Map<IEnumerable<VoucherDto>>(vouchers.Skip(skip).Take(take)));
@@ -80,12 +81,20 @@ namespace Services.Voucher.Controllers
             return Ok(_mapper.Map<IEnumerable<VoucherDto>>(vouchers));
         }
 
+        /// <summary>
+        /// Searches for vouchers whose name contains the search text.
+        /// </summary>
+        /// <param name="search">The text to search for.</param>
+        /// <param name="take">Indicates page size. The default value is 1000. Max value is 8192.</param>
+        /// <param name="skip">The number of voucher objects to skip. The default value is 0.</param>
+        /// <returns>A collection of voucher objects.</returns>
         [HttpGet]
         [Route("[action]")]
         [ProducesResponseType(200)]
-        public IEnumerable<VoucherDto> GetVouchersByNameSearch(string search)
+        public async Task<ActionResult<IEnumerable<VoucherDto>>> GetVouchersByNameSearch(string search, [Range(0, 8192)] int take = 1000, int skip = 0)
         {
-            throw new NotImplementedException();
+            var vouchers = await _voucherRepository.SearchVouchersByName(search);
+            return Ok(_mapper.Map<IEnumerable<VoucherDto>>(vouchers).Skip(skip).Take(take));
         }
 
         [HttpGet]
