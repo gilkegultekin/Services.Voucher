@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Services.Voucher.Application.Dto;
 using Services.Voucher.Application.Repository;
-using Services.Voucher.Domain.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -83,14 +82,16 @@ namespace Services.Voucher.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public IEnumerable<VoucherModel> GetVouchersByNameSearch(string search)
+        [ProducesResponseType(200)]
+        public IEnumerable<VoucherDto> GetVouchersByNameSearch(string search)
         {
             throw new NotImplementedException();
         }
 
         [HttpGet]
         [Route("[action]")]
-        public VoucherModel GetCheapestVoucherByProductCode(string productCode)
+        [ProducesResponseType(200)]
+        public VoucherDto GetCheapestVoucherByProductCode(string productCode)
         {
             throw new NotImplementedException();
         }

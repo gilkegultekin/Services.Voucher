@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
+using Serilog;
 using Services.Voucher.Application.Repository;
 using Services.Voucher.Core.Extensions;
 using Services.Voucher.EntityFramework.Contexts;
@@ -79,6 +80,8 @@ namespace Services.Voucher
             app.UseSwaggerUI();
 
             app.UseHttpsRedirection();
+
+            app.UseSerilogRequestLogging();
 
             app.UseRouting();
 

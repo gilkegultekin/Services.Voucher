@@ -123,7 +123,9 @@ namespace Services.Voucher.Test.Unit.Controllers
             var result = _controller.GetVouchersByNameSearch("BC");
 
             // Assert
-            Assert.Equal(result, new List<VoucherModel>() { vouchers.ElementAt(0), vouchers.ElementAt(1) });
+            Assert.Equal(2, result.Count());
+            Assert.Equal(result.First().Id, vouchers.ElementAt(0).Id);
+            Assert.Equal(result.ElementAt(1).Id, vouchers.ElementAt(1).Id);
         }
 
         [Fact]

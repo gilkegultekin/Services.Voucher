@@ -3,13 +3,14 @@ using Microsoft.EntityFrameworkCore;
 using Services.Voucher.Controllers;
 using Services.Voucher.EntityFramework.Contexts;
 using Services.Voucher.EntityFramework.Repository;
+using Services.Voucher.Test.Core;
 using System;
 using System.Threading.Tasks;
 using Xunit;
 
 namespace Services.Voucher.Test.Performance.Controllers
 {
-    public class VoucherControllerTests
+    public class VoucherControllerTests : TestBase
     {
         private readonly VoucherController _controller;
 
