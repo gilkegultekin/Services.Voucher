@@ -37,9 +37,12 @@ namespace Services.Voucher.EntityFramework.Repository
         public async Task<IEnumerable<VoucherModel>> GetVouchers(int take, int skip)
         {
             _logger.LogInformation("Inside VoucherRepository.GetVouchers");
-            //Avoiding Cartesian explosion by loading product codes explicitly. (And banking on the fact that they're low in number)
-            var vouchers = await _voucherContext.Vouchers.Skip(skip).Take(take).ToListAsync();
+
+            var vouchers = take == 0 ? _voucherContext.Vouchers.Skip(skip) : _voucherContext.Vouchers.Skip(skip).Take(take);
+
+            //Avoiding Cartesian explosion by loading product codes explicitly.
             await _voucherContext.VoucherProductCodes.LoadAsync();
+
             var voucherModels = _mapper.Map<IEnumerable<VoucherModel>>(vouchers);
             return voucherModels;
         }
@@ -69,10 +72,10 @@ namespace Services.Voucher.EntityFramework.Repository
         }
 
         /// <inheritdoc/>
-        public async Task<IEnumerable<VoucherModel>> SearchVouchersByName(string searchText, int take, int skip)
+        public async Task<IEnumerable<VoucherModel>> SearchVouchersByName(string searchText)
         {
-            var vouchers = await _voucherContext.Vouchers.Where(v => v.Name.Contains(searchText)).Skip(skip).Take(take).ToListAsync();
-            if (vouchers == null || !vouchers.Any())
+            var vouchers = await _voucherContext.Vouchers.Where(v => v.Name.Contains(searchText)).ToListAsync();
+            if (!vouchers.Any())
             {
                 return Enumerable.Empty<VoucherModel>();
             }

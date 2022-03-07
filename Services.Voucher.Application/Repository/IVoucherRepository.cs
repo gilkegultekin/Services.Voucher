@@ -36,10 +36,8 @@ namespace Services.Voucher.Application.Repository
         /// Searches for vouchers whose name contains the search text.
         /// </summary>
         /// <param name="searchText">The text to search for in the name field.</param>
-        /// <param name="take">The number of records to take.</param>
-        /// <param name="skip">The number of records to skip.</param>
         /// <returns>A collection of voucher entities.</returns>
-        Task<IEnumerable<VoucherModel>> SearchVouchersByName(string searchText, int take, int skip);
+        Task<IEnumerable<VoucherModel>> SearchVouchersByName(string searchText);
 
         /// <summary>
         /// Looks up vouchers by product code and returns the cheapest one.

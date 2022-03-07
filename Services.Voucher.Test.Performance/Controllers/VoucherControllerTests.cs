@@ -1,9 +1,6 @@
-using AutoMapper;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Services.Voucher.Controllers;
-using Services.Voucher.EntityFramework.Contexts;
 using Services.Voucher.EntityFramework.Repository;
 using Services.Voucher.Test.Core;
 using System;
@@ -16,20 +13,11 @@ namespace Services.Voucher.Test.Performance.Controllers
     {
         private readonly VoucherController _controller;
 
-        public VoucherControllerTests()
+        public VoucherControllerTests(EntityFrameworkFixture fixture) : base(fixture)
         {
-            var config = new MapperConfiguration(opts =>
-            {
-                // Add your mapper profile configs or mappings here
-            });
-
-            var mapper = config.CreateMapper(); // Use this mapper to instantiate your class
-            var options = new DbContextOptionsBuilder<VoucherContext>()
-            .UseInMemoryDatabase(databaseName: "PerformanceTestDB")
-            .Options;
-            var context = new VoucherContext(options);
-            var repository = new VoucherRepository(context, mapper, Substitute.For<ILogger<VoucherRepository>>());
-            _controller = new VoucherController(repository, mapper);
+            var dbContext = Fixture.GetNewContext();
+            var repository = new VoucherRepository(dbContext, Mapper, Substitute.For<ILogger<VoucherRepository>>());
+            _controller = new VoucherController(repository, Mapper);
         }
 
         [Fact]
@@ -37,7 +25,7 @@ namespace Services.Voucher.Test.Performance.Controllers
         {
             var startTime = DateTime.Now;
 
-            for (var i = 0; i < 1000; i++)
+            for (var i = 0; i < 500; i++)
             {
                 await _controller.Get();
             }
@@ -51,23 +39,26 @@ namespace Services.Voucher.Test.Performance.Controllers
         {
             var startTime = DateTime.Now;
 
-            for (var i = 0; i < 100000; i++)
+            for (var i = 0; i < 500; i++)
             {
                 await _controller.Get(1000);
             }
 
             var elapsed = DateTime.Now.Subtract(startTime).TotalMilliseconds;
-            Assert.True(elapsed < 5000);
+            Assert.True(elapsed < 15000);
         }
 
         [Fact]
         public async Task GetCheapestVoucherByProductCode_ShouldBePerformant()
         {
+            string productCode = "P007DX";
+            await Fixture.InsertVouchersWithProductCode(productCode, 100, 200);
+
             var startTime = DateTime.Now;
 
-            for (var i = 0; i < 100; i++)
+            for (var i = 0; i < 1000; i++)
             {
-                await _controller.GetCheapestVoucherByProductCode("P007D");
+                await _controller.GetCheapestVoucherByProductCode(productCode);
             }
 
             var elapsed = DateTime.Now.Subtract(startTime).TotalMilliseconds;

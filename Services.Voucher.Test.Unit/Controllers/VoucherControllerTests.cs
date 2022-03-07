@@ -1,10 +1,10 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Services.Voucher.Application.Dto;
-using Services.Voucher.Application.Repository;
 using Services.Voucher.Controllers;
-using Services.Voucher.Domain.Models;
+using Services.Voucher.EntityFramework.Contexts;
+using Services.Voucher.EntityFramework.Repository;
 using Services.Voucher.Test.Core;
 using System;
 using System.Collections.Generic;
@@ -14,125 +14,121 @@ using Xunit;
 
 namespace Services.Voucher.Test.Unit.Controllers
 {
-    //public class VoucherControllerTests : TestBase
-    //{
-    //    private readonly VoucherController _controller;
-    //    private readonly IVoucherRepository _repository;
-    //    private readonly IMapper _mapper;
+    public class VoucherControllerTests : TestBase
+    {
+        private readonly VoucherController _controller;
+        private readonly VoucherContext _voucherContext;
 
-    //    public VoucherControllerTests()
-    //    {
-    //        _repository = Substitute.For<IVoucherRepository>();
-    //        var config = new MapperConfiguration(opts =>
-    //        {
-    //            opts.CreateMap<VoucherModel, VoucherDto>();
-    //        });
+        public VoucherControllerTests(EntityFrameworkFixture fixture) : base(fixture)
+        {
+            _voucherContext = Fixture.GetNewContext();
+            var repository = new VoucherRepository(_voucherContext, Mapper, Substitute.For<ILogger<VoucherRepository>>());
+            _controller = new VoucherController(repository, Mapper);
+        }
 
-    //        _mapper = config.CreateMapper();
-    //        _controller = new VoucherController(_repository, _mapper);
-    //    }
+        [Fact]
+        public async Task Get_ShouldReturnAllVouchers_WhenNoCountIsProvided()
+        {
+            // Act
+            var result = await _controller.Get();
+            var dtoCollection = ParseActionResultAsOk<IEnumerable<VoucherDto>>(result.Result);
 
-    //    [Fact]
-    //    public async Task Get_ShouldReturnAllVouchers_WhenNoCountIsProvided()
-    //    {
-    //        // Arrange
-    //        var vouchers = new List<VoucherModel>();
-    //        for (var i = 0; i < 1000; i++)
-    //        {
-    //            vouchers.Add(new VoucherModel
-    //            {
-    //                Id = new Guid()
-    //            });
-    //        }
-    //        _repository.GetVouchers().Returns(vouchers);
-            
+            // Assert
+            Assert.IsAssignableFrom<OkObjectResult>(result.Result);
+            Assert.Equal(_voucherContext.Vouchers.Count(), dtoCollection.Count());
+        }
 
-    //        // Act
-    //        var result = await _controller.Get();
-    //        var resultCollection = ParseActionResultAsOk<IEnumerable<VoucherDto>>(result.Result);
+        [Theory]
+        [InlineData(1)]
+        [InlineData(5)]
+        [InlineData(100)]
+        [InlineData(1000)]
+        [InlineData(10000)]
+        public async Task Get_ShouldReturnTheRequestedAmountOfVouchers_WhenACountIsProvided(int count)
+        {
+            // Act
+            var result = await _controller.Get(count);
+            var dtoCollection = ParseActionResultAsOk<IEnumerable<VoucherDto>>(result.Result);
 
-    //        // Assert
-    //        Assert.IsAssignableFrom<OkObjectResult>(result.Result);
-    //        Assert.Equal(vouchers.Count(), resultCollection.Count());
-    //    }
+            // Assert
+            Assert.IsAssignableFrom<OkObjectResult>(result.Result);
+            Assert.Equal(count, dtoCollection.Count());
+        }
 
-    //    [Fact]
-    //    public async Task Get_ShouldReturnTheRequestedAmountOfVouchers_WhenACountIsProvided()
-    //    {
-    //        // Arrange
-    //        int count = 5;
-    //        var vouchers = new List<VoucherModel>();
-    //        for (var i = 0; i < 1000; i++)
-    //        {
-    //            vouchers.Add(new VoucherModel
-    //            {
-    //                Id = new Guid()
-    //            });
-    //        }
-    //        _repository.GetVouchers().Returns(vouchers);
+        [Fact]
+        public async void GetVoucherById_ShouldReturnVoucher_WhenVoucherExists()
+        {
+            //Arrange
+            Guid id = Guid.NewGuid();
+            await Fixture.InsertVoucherWithId(id);
 
-    //        // Act
-    //        var result = await _controller.Get(count);
-    //        var resultCollection = ParseActionResultAsOk<IEnumerable<VoucherDto>>(result.Result);
+            // Act
+            var result = await _controller.GetVoucherById(id);
+            var dto = ParseActionResultAsOk<VoucherDto>(result.Result);
 
-    //        // Assert
-    //        Assert.IsAssignableFrom<OkObjectResult>(result.Result);
-    //        Assert.Equal(count, resultCollection.Count());
-    //    }
+            // Assert
+            Assert.IsAssignableFrom<OkObjectResult>(result.Result);
+            Assert.True(dto != null);
+            Assert.True(dto.Id == id);
+        }
 
-    //    [Fact]
-    //    public void GetVoucherById_StateUnderTest_ExpectedBehavior()
-    //    {
-    //        // TODO
-    //    }
+        [Fact]
+        public async Task GetVouchersByName_ShouldReturnAllVouchersWithTheGivenSearchString_WhenVoucherExists()
+        {
+            // Arrange
+            string name = "A";
+            int count = 10;
+            await Fixture.InsertVouchersWithName(name, count);
 
-    //    [Fact]
-    //    public async Task GetVouchersByName_ShouldReturnAllVouchersWithTheGivenSearchString_WhenVoucherExists()
-    //    {
-    //        // Arrange
-    //        var vouchers = new List<VoucherModel>();
-    //        vouchers.Add(new VoucherModel { Id = new Guid(), Name = "A" });
-    //        vouchers.Add(new VoucherModel { Id = new Guid(), Name = "A" });
-    //        vouchers.Add(new VoucherModel { Id = new Guid(), Name = "B" });
-    //        _repository.GetVouchersByName("A").Returns(vouchers);
-    //        //TODO: Fix this unit test. Will probably have to use in memory db instead of mocking the repo direcly.
+            // Act
+            var result = await _controller.GetVouchersByName(name);
+            var dtoCollection = ParseActionResultAsOk<IEnumerable<VoucherDto>>(result.Result);
 
-    //        // Act
-    //        var result = await _controller.GetVouchersByName("A");
-    //        var resultCollection = ParseActionResultAsOk<IEnumerable<VoucherDto>>(result.Result);
+            // Assert
+            Assert.IsAssignableFrom<OkObjectResult>(result.Result);
+            Assert.Equal(count, dtoCollection.Count());
+            Assert.True(dtoCollection.All(x => x.Name == name));
+        }
 
-    //        // Assert
-    //        Assert.IsAssignableFrom<OkObjectResult>(result.Result);
-    //        Assert.Equal(2, resultCollection.Count());
-    //        Assert.Equal(resultCollection.First().Id, vouchers.ElementAt(0).Id);
-    //        Assert.Equal(resultCollection.ElementAt(1).Id, vouchers.ElementAt(1).Id);
-    //    }
+        [Fact]
+        public async Task GetVouchersByNameSearch_ShouldReturnAllVouchersThatContainTheGivenSearchString_WhenVoucherExists()
+        {
+            // Arrange
+            int count = 20;
+            string search = "BX1CY";
+            await Fixture.InsertVouchersWithName("ABX1CYZ", 5);
+            await Fixture.InsertVouchersWithName("BX1CY4", 5);
+            await Fixture.InsertVouchersWithName("3BX1CY", 5);
+            await Fixture.InsertVouchersWithName("BX1CY", 5);
 
-    //    [Fact]
-    //    public void GetVouchersByNameSearch_ShouldReturnAllVouchersThatContainTheGivenSearchString_WhenVoucherExists()
-    //    {
-    //        // Arrange
-    //        var vouchers = new List<VoucherModel>();
-    //        vouchers.Add(new VoucherModel { Id = new Guid(), Name = "ABC"  });
-    //        vouchers.Add(new VoucherModel { Id = new Guid(), Name = "ABCD" });
-    //        vouchers.Add(new VoucherModel { Id = new Guid(), Name = "ACD" });
-    //        _repository.GetVouchers().Returns(vouchers);
+            // Act
+            var result = await _controller.GetVouchersByNameSearch(search);
+            var dtoCollection = ParseActionResultAsOk<IEnumerable<VoucherDto>>(result.Result);
 
-    //        // Act
-    //        var result = _controller.GetVouchersByNameSearch("BC");
+            // Assert
+            Assert.IsAssignableFrom<OkObjectResult>(result.Result);
+            Assert.Equal(count, dtoCollection.Count());
+            Assert.True(dtoCollection.All(x => x.Name.Contains(search)));
+        }
 
-    //        // Assert
-    //        Assert.Equal(2, result.Count());
-    //        Assert.Equal(result.First().Id, vouchers.ElementAt(0).Id);
-    //        Assert.Equal(result.ElementAt(1).Id, vouchers.ElementAt(1).Id);
-    //    }
+        [Fact]
+        public async void GetCheapestVoucherByProductCode_ShouldReturnCheapestVoucher_WhenProductCodeExists()
+        {
+            // Arrange
+            string productCode = "Gbbrsh";
+            var cheapestVoucherId = await Fixture.InsertVoucherWithProductCodeAndPrice(productCode, 5);
+            await Fixture.InsertVouchersWithProductCode(productCode, 10, 20, 10, false);
 
-    //    [Fact]
-    //    public void GetCheapestVoucherByProductCode_StateUnderTest_ExpectedBehavior()
-    //    {
-    //        // TODO
-    //    }
+            // Act
+            var result = await _controller.GetCheapestVoucherByProductCode(productCode);
+            var dto = ParseActionResultAsOk<VoucherDto>(result.Result);
 
-    //    // TODO: This is not all the tests that we would like to see + the above tests can be made much smarter.
-    //}
+            // Assert
+            Assert.IsAssignableFrom<OkObjectResult>(result.Result);
+            Assert.True(dto != null);
+            Assert.True(dto.Id == cheapestVoucherId);
+        }
+
+        // TODO: This is not all the tests that we would like to see + the above tests can be made much smarter.
+    }
 }

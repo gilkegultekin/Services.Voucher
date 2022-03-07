@@ -40,7 +40,7 @@ namespace Services.Voucher.Controllers
         [HttpGet]
         [Route("")]
         [ProducesResponseType(200)]
-        public async Task<ActionResult<IEnumerable<VoucherDto>>> Get([Range(1, 8192)] int take = 1000, int skip = 0)
+        public async Task<ActionResult<IEnumerable<VoucherDto>>> Get([Range(0, int.MaxValue)]int take = 0, [Range(0, int.MaxValue)] int skip = 0)
         {
             var vouchers = await _voucherRepository.GetVouchers(take, skip);
             var dtoCollection = _mapper.Map<IEnumerable<VoucherDto>>(vouchers);
@@ -91,9 +91,9 @@ namespace Services.Voucher.Controllers
         [HttpGet]
         [Route("[action]")]
         [ProducesResponseType(200)]
-        public async Task<ActionResult<IEnumerable<VoucherDto>>> GetVouchersByNameSearch(string search, [Range(1, 8192)] int take = 1000, int skip = 0)
+        public async Task<ActionResult<IEnumerable<VoucherDto>>> GetVouchersByNameSearch(string search)
         {
-            var vouchers = await _voucherRepository.SearchVouchersByName(search, take, skip);
+            var vouchers = await _voucherRepository.SearchVouchersByName(search);
             return Ok(_mapper.Map<IEnumerable<VoucherDto>>(vouchers));
         }
 
