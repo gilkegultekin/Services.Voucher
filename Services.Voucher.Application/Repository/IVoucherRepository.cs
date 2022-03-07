@@ -13,8 +13,10 @@ namespace Services.Voucher.Application.Repository
         /// <summary>
         /// Gets all vouchers.
         /// </summary>
+        /// <param name="take">The number of records to take.</param>
+        /// <param name="skip">The number of records to skip.</param>
         /// <returns>A collection of voucher entities.</returns>
-        Task<IEnumerable<VoucherModel>> GetVouchers();
+        Task<IEnumerable<VoucherModel>> GetVouchers(int take, int skip);
 
         /// <summary>
         /// Looks up a single voucher by its id.
@@ -36,5 +38,12 @@ namespace Services.Voucher.Application.Repository
         /// <param name="searchText">The text to search for in the name field.</param>
         /// <returns>A collection of voucher entities.</returns>
         Task<IEnumerable<VoucherModel>> SearchVouchersByName(string searchText);
+
+        /// <summary>
+        /// Looks up vouchers by product code and returns the cheapest one.
+        /// </summary>
+        /// <param name="productCode">The product code to search for.</param>
+        /// <returns>A voucher entity.</returns>
+        Task<VoucherModel> GetCheapestVoucherByProductCode(string productCode);
     }
 }

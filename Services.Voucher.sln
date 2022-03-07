@@ -9,17 +9,17 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Services.Voucher.Test.Unit"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Services.Voucher.Test.Performance", "Services.Voucher.Test.Performance\Services.Voucher.Test.Performance.csproj", "{247089A9-5434-47B4-ADCF-88301CC92F2A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Services.Voucher.Application", "Services.Voucher.Application\Services.Voucher.Application.csproj", "{AD142674-5C26-4242-B4BC-38BC01F0CF1D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Services.Voucher.Application", "Services.Voucher.Application\Services.Voucher.Application.csproj", "{AD142674-5C26-4242-B4BC-38BC01F0CF1D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Services.Voucher.Domain", "Services.Voucher.Domain\Services.Voucher.Domain.csproj", "{C34BB7EC-D898-47AF-8FAE-E21929A5BFCC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Services.Voucher.Domain", "Services.Voucher.Domain\Services.Voucher.Domain.csproj", "{C34BB7EC-D898-47AF-8FAE-E21929A5BFCC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Services.Voucher.FileDB", "Services.Voucher.FileDB\Services.Voucher.FileDB.csproj", "{6C7FDD44-7F94-416F-A05B-B542E5D797A2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Services.Voucher.FileDB", "Services.Voucher.FileDB\Services.Voucher.FileDB.csproj", "{6C7FDD44-7F94-416F-A05B-B542E5D797A2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Services.Voucher.EntityFramework", "Services.Voucher.EntityFramework\Services.Voucher.EntityFramework.csproj", "{E7317F31-276C-4850-880D-482F1545D829}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Services.Voucher.EntityFramework", "Services.Voucher.EntityFramework\Services.Voucher.EntityFramework.csproj", "{E7317F31-276C-4850-880D-482F1545D829}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Services.Voucher.Core", "Services.Voucher.Core\Services.Voucher.Core.csproj", "{1ECA9327-80D1-4541-8946-D78B16EF0304}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Services.Voucher.Core", "Services.Voucher.Core\Services.Voucher.Core.csproj", "{1ECA9327-80D1-4541-8946-D78B16EF0304}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Services.Voucher.Test.Core", "Services.Voucher.Test.Core\Services.Voucher.Test.Core.csproj", "{7C6A29C4-BD3F-442D-B634-8F6B8800F614}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Services.Voucher.Test.Core", "Services.Voucher.Test.Core\Services.Voucher.Test.Core.csproj", "{7C6A29C4-BD3F-442D-B634-8F6B8800F614}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

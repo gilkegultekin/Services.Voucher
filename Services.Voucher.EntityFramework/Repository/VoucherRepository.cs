@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 namespace Services.Voucher.EntityFramework.Repository
 {
     /// <summary>
-    /// An implementation of the <see cref="IVoucherRepository"/> interface using EntityFramework Core as the underlying database technology.
+    /// An implementation of the <see cref="IVoucherRepository"/> interface using EntityFramework Core as the ORM.
     /// </summary>
     public class VoucherRepository : IVoucherRepository
     {
@@ -33,31 +33,47 @@ namespace Services.Voucher.EntityFramework.Repository
         }
 
         /// <inheritdoc/>
-        public async Task<IEnumerable<VoucherModel>> GetVouchers()
+        public async Task<IEnumerable<VoucherModel>> GetVouchers(int take, int skip)
         {
             _logger.LogInformation("Inside VoucherRepository.GetVouchers");
-            return _mapper.Map<IEnumerable<VoucherModel>>(_voucherContext.Vouchers);
+            var vouchers = _voucherContext.Vouchers.Skip(skip).Take(take).Include(v => v.VoucherProductCodes);
+            
+            var voucherModels = _mapper.Map<IEnumerable<VoucherModel>>(vouchers);
+            return voucherModels;
         }
 
         /// <inheritdoc/>
         public async Task<VoucherModel> GetVoucherById(Guid id)
         {
-            var voucher = await _voucherContext.Vouchers.FindAsync(id);
+            var voucher = await _voucherContext.Vouchers.Include(v => v.VoucherProductCodes).SingleOrDefaultAsync(v => v.Id == id);
             return voucher == null ? null : _mapper.Map<VoucherModel>(voucher);
         }
 
         /// <inheritdoc/>
         public async Task<IEnumerable<VoucherModel>> GetVouchersByName(string name)
         {
-            var vouchers = await _voucherContext.Vouchers.Where(v => v.Name == name).ToArrayAsync();
+            var vouchers = await _voucherContext.Vouchers.Include(v => v.VoucherProductCodes).Where(v => v.Name == name).ToArrayAsync();
             return _mapper.Map<IEnumerable<VoucherModel>>(vouchers);
         }
 
         /// <inheritdoc/>
         public async Task<IEnumerable<VoucherModel>> SearchVouchersByName(string searchText)
         {
-            var vouchers = _voucherContext.Vouchers.Where(v => v.Name.Contains(searchText));
+            var vouchers = _voucherContext.Vouchers.Include(v => v.VoucherProductCodes).Where(v => v.Name.Contains(searchText));
             return _mapper.Map<IEnumerable<VoucherModel>>(vouchers);
+        }
+
+        /// <inheritdoc/>
+        public async Task<VoucherModel> GetCheapestVoucherByProductCode(string productCode)
+        {
+            var cheapest = await _voucherContext
+                .VoucherProductCodes
+                .Where(vpc => vpc.ProductCodeId == productCode)
+                .Select(vpc => vpc.Voucher)
+                .OrderBy(v => v.Price)
+                .FirstOrDefaultAsync();
+
+            return _mapper.Map<VoucherModel>(await _voucherContext.Vouchers.Include(v => v.VoucherProductCodes).SingleOrDefaultAsync(v => v.Id == cheapest.Id));
         }
     }
 }

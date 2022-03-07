@@ -43,8 +43,9 @@ namespace Services.Voucher.Controllers
         [ProducesResponseType(200)]
         public async Task<ActionResult<IEnumerable<VoucherDto>>> Get([Range(0, 8192)] int take = 1000, int skip = 0)
         {
-            var vouchers = await _voucherRepository.GetVouchers();
-            return Ok(_mapper.Map<IEnumerable<VoucherDto>>(vouchers.Skip(skip).Take(take)));
+            var vouchers = await _voucherRepository.GetVouchers(take, skip);
+            var dtoCollection = _mapper.Map<IEnumerable<VoucherDto>>(vouchers);
+            return Ok(dtoCollection);
         }
 
         /// <summary>
@@ -63,8 +64,8 @@ namespace Services.Voucher.Controllers
             {
                 return NotFound();
             }
-
-            return Ok(_mapper.Map<VoucherDto>(voucher));
+            var dto = _mapper.Map<VoucherDto>(voucher);
+            return Ok(dto);
         }
 
         /// <summary>
@@ -97,12 +98,19 @@ namespace Services.Voucher.Controllers
             return Ok(_mapper.Map<IEnumerable<VoucherDto>>(vouchers).Skip(skip).Take(take));
         }
 
+        /// <summary>
+        /// Looks up vouchers by product code and returns the cheapest one among them.
+        /// </summary>
+        /// <param name="productCode">The product code to search for.</param>
+        /// <returns>A single voucher object.</returns>
         [HttpGet]
         [Route("[action]")]
         [ProducesResponseType(200)]
-        public VoucherDto GetCheapestVoucherByProductCode(string productCode)
+        public async Task<ActionResult<VoucherDto>> GetCheapestVoucherByProductCode(string productCode)
         {
-            throw new NotImplementedException();
+            var cheapest = await _voucherRepository.GetCheapestVoucherByProductCode(productCode);
+            var dto = _mapper.Map<VoucherDto>(cheapest);
+            return Ok(dto);
         }
     }
 }

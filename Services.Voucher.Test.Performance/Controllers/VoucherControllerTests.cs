@@ -1,5 +1,7 @@
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using NSubstitute;
 using Services.Voucher.Controllers;
 using Services.Voucher.EntityFramework.Contexts;
 using Services.Voucher.EntityFramework.Repository;
@@ -26,7 +28,7 @@ namespace Services.Voucher.Test.Performance.Controllers
             .UseInMemoryDatabase(databaseName: "PerformanceTestDB")
             .Options;
             var context = new VoucherContext(options);
-            var repository = new VoucherRepository(context, mapper, null);
+            var repository = new VoucherRepository(context, mapper, Substitute.For<ILogger<VoucherRepository>>());
             _controller = new VoucherController(repository, mapper);
         }
 
@@ -59,13 +61,13 @@ namespace Services.Voucher.Test.Performance.Controllers
         }
 
         [Fact]
-        public void GetCheapestVoucherByProductCode_ShouldBePerformant()
+        public async Task GetCheapestVoucherByProductCode_ShouldBePerformant()
         {
             var startTime = DateTime.Now;
 
             for (var i = 0; i < 100; i++)
             {
-                _controller.GetCheapestVoucherByProductCode("P007D");
+                await _controller.GetCheapestVoucherByProductCode("P007D");
             }
 
             var elapsed = DateTime.Now.Subtract(startTime).TotalMilliseconds;

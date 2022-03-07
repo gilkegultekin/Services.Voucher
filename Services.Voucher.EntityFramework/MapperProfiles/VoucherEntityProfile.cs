@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Services.Voucher.Domain.Models;
+using System.Linq;
 
 namespace Services.Voucher.EntityFramework.MapperProfiles
 {
@@ -7,7 +8,8 @@ namespace Services.Voucher.EntityFramework.MapperProfiles
     {
         public VoucherEntityProfile()
         {
-            CreateMap<Models.Voucher, VoucherModel>();
+            CreateMap<Models.Voucher, VoucherModel>()
+                .ForMember(d => d.ProductCodes, opt => opt.MapFrom(s => s.VoucherProductCodes.Select(vpc => vpc.ProductCodeId).ToArray()));
         }
     }
 }

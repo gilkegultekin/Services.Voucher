@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Services.Voucher.EntityFramework.Models
 {
@@ -10,6 +11,6 @@ namespace Services.Voucher.EntityFramework.Models
 
         public double Price { get; set; }
 
-        public string ProductCodes { get; set; }
+        public ICollection<VoucherProductCode> VoucherProductCodes { get; set; }
     }
 }

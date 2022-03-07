@@ -1,15 +1,29 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Services.Voucher.Domain.Models
 {
     public class VoucherModel
     {
-        public Guid Id { get; set; }
+        protected VoucherModel()
+        {
 
-        public string Name { get; set; }
+        }
 
-        public double Price { get; set; }
+        public VoucherModel(Guid id, string name, double price, string[] productCodes)
+        {
+            Id = id;
+            Name = name;
+            Price = price;
+            ProductCodes = productCodes;
+        }
 
-        public string ProductCodes { get; set; }
+        public Guid Id { get; private set; }
+
+        public string Name { get; private set; }
+
+        public double Price { get; private set; }
+
+        public string[] ProductCodes { get; private set; }
     }
 }
