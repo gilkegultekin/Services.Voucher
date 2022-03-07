@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Services.Voucher.Application.Repository;
+using Services.Voucher.Core.Exceptions;
 using Services.Voucher.Domain.Models;
 using Services.Voucher.EntityFramework.Contexts;
 using System;
@@ -36,8 +37,9 @@ namespace Services.Voucher.EntityFramework.Repository
         public async Task<IEnumerable<VoucherModel>> GetVouchers(int take, int skip)
         {
             _logger.LogInformation("Inside VoucherRepository.GetVouchers");
-            var vouchers = _voucherContext.Vouchers.Skip(skip).Take(take).Include(v => v.VoucherProductCodes);
-            
+            //Avoiding Cartesian explosion by loading product codes explicitly. (And banking on the fact that they're low in number)
+            var vouchers = await _voucherContext.Vouchers.Skip(skip).Take(take).ToListAsync();
+            await _voucherContext.VoucherProductCodes.LoadAsync();
             var voucherModels = _mapper.Map<IEnumerable<VoucherModel>>(vouchers);
             return voucherModels;
         }
@@ -45,21 +47,36 @@ namespace Services.Voucher.EntityFramework.Repository
         /// <inheritdoc/>
         public async Task<VoucherModel> GetVoucherById(Guid id)
         {
-            var voucher = await _voucherContext.Vouchers.Include(v => v.VoucherProductCodes).SingleOrDefaultAsync(v => v.Id == id);
-            return voucher == null ? null : _mapper.Map<VoucherModel>(voucher);
+            var voucher = await _voucherContext.Vouchers.SingleOrDefaultAsync(v => v.Id == id);
+            if (voucher == null)
+            {
+                return null;
+            }
+            await _voucherContext.Entry(voucher).Collection(v => v.VoucherProductCodes).LoadAsync();
+            return _mapper.Map<VoucherModel>(voucher);
         }
 
         /// <inheritdoc/>
         public async Task<IEnumerable<VoucherModel>> GetVouchersByName(string name)
         {
-            var vouchers = await _voucherContext.Vouchers.Include(v => v.VoucherProductCodes).Where(v => v.Name == name).ToArrayAsync();
+            var vouchers = await _voucherContext.Vouchers.Where(v => v.Name == name).ToListAsync();
+            if (vouchers == null || !vouchers.Any())
+            {
+                return Enumerable.Empty<VoucherModel>();
+            }
+            await _voucherContext.VoucherProductCodes.LoadAsync();
             return _mapper.Map<IEnumerable<VoucherModel>>(vouchers);
         }
 
         /// <inheritdoc/>
-        public async Task<IEnumerable<VoucherModel>> SearchVouchersByName(string searchText)
+        public async Task<IEnumerable<VoucherModel>> SearchVouchersByName(string searchText, int take, int skip)
         {
-            var vouchers = _voucherContext.Vouchers.Include(v => v.VoucherProductCodes).Where(v => v.Name.Contains(searchText));
+            var vouchers = await _voucherContext.Vouchers.Where(v => v.Name.Contains(searchText)).Skip(skip).Take(take).ToListAsync();
+            if (vouchers == null || !vouchers.Any())
+            {
+                return Enumerable.Empty<VoucherModel>();
+            }
+            await _voucherContext.VoucherProductCodes.LoadAsync();
             return _mapper.Map<IEnumerable<VoucherModel>>(vouchers);
         }
 
@@ -73,7 +90,12 @@ namespace Services.Voucher.EntityFramework.Repository
                 .OrderBy(v => v.Price)
                 .FirstOrDefaultAsync();
 
-            return _mapper.Map<VoucherModel>(await _voucherContext.Vouchers.Include(v => v.VoucherProductCodes).SingleOrDefaultAsync(v => v.Id == cheapest.Id));
+            if (cheapest == null)
+            {
+                throw new CustomServiceException($"The specified product code {productCode} does not exist!");
+            }
+            await _voucherContext.Entry(cheapest).Collection(v => v.VoucherProductCodes).LoadAsync();
+            return _mapper.Map<VoucherModel>(cheapest);
         }
     }
 }

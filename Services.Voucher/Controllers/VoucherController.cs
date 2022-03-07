@@ -5,7 +5,6 @@ using Services.Voucher.Application.Repository;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Services.Voucher.Controllers
@@ -41,7 +40,7 @@ namespace Services.Voucher.Controllers
         [HttpGet]
         [Route("")]
         [ProducesResponseType(200)]
-        public async Task<ActionResult<IEnumerable<VoucherDto>>> Get([Range(0, 8192)] int take = 1000, int skip = 0)
+        public async Task<ActionResult<IEnumerable<VoucherDto>>> Get([Range(1, 8192)] int take = 1000, int skip = 0)
         {
             var vouchers = await _voucherRepository.GetVouchers(take, skip);
             var dtoCollection = _mapper.Map<IEnumerable<VoucherDto>>(vouchers);
@@ -92,10 +91,10 @@ namespace Services.Voucher.Controllers
         [HttpGet]
         [Route("[action]")]
         [ProducesResponseType(200)]
-        public async Task<ActionResult<IEnumerable<VoucherDto>>> GetVouchersByNameSearch(string search, [Range(0, 8192)] int take = 1000, int skip = 0)
+        public async Task<ActionResult<IEnumerable<VoucherDto>>> GetVouchersByNameSearch(string search, [Range(1, 8192)] int take = 1000, int skip = 0)
         {
-            var vouchers = await _voucherRepository.SearchVouchersByName(search);
-            return Ok(_mapper.Map<IEnumerable<VoucherDto>>(vouchers).Skip(skip).Take(take));
+            var vouchers = await _voucherRepository.SearchVouchersByName(search, take, skip);
+            return Ok(_mapper.Map<IEnumerable<VoucherDto>>(vouchers));
         }
 
         /// <summary>
@@ -106,6 +105,7 @@ namespace Services.Voucher.Controllers
         [HttpGet]
         [Route("[action]")]
         [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
         public async Task<ActionResult<VoucherDto>> GetCheapestVoucherByProductCode(string productCode)
         {
             var cheapest = await _voucherRepository.GetCheapestVoucherByProductCode(productCode);

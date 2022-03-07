@@ -39,7 +39,7 @@ namespace Services.Voucher.FileDB.Repository
             throw new NotImplementedException();
         }
 
-        public Task<IEnumerable<VoucherModel>> SearchVouchersByName(string searchText)
+        public Task<IEnumerable<VoucherModel>> SearchVouchersByName(string searchText, int take, int skip)
         {
             throw new NotImplementedException();
         }
