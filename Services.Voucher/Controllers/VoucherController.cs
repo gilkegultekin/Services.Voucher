@@ -85,8 +85,6 @@ namespace Services.Voucher.Controllers
         /// Searches for vouchers whose name contains the search text.
         /// </summary>
         /// <param name="search">The text to search for.</param>
-        /// <param name="take">Indicates page size. The default value is 1000. Max value is 8192.</param>
-        /// <param name="skip">The number of voucher objects to skip. The default value is 0.</param>
         /// <returns>A collection of voucher objects.</returns>
         [HttpGet]
         [Route("[action]")]
