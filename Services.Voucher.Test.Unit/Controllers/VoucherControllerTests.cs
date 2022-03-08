@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using FluentAssertions;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Services.Voucher.Application.Dto;
 using Services.Voucher.Controllers;
+using Services.Voucher.Core.Exceptions;
 using Services.Voucher.EntityFramework.Contexts;
 using Services.Voucher.EntityFramework.Repository;
 using Services.Voucher.Test.Core;
@@ -73,6 +75,19 @@ namespace Services.Voucher.Test.Unit.Controllers
         }
 
         [Fact]
+        public async void GetVoucherById_ShouldReturn404_WhenVoucherDoesNotExist()
+        {
+            //Arrange
+            Guid id = Guid.NewGuid();
+
+            // Act
+            var result = await _controller.GetVoucherById(id);
+
+            // Assert
+            Assert.IsAssignableFrom<NotFoundResult>(result.Result);
+        }
+
+        [Fact]
         public async Task GetVouchersByName_ShouldReturnAllVouchersWithTheGivenSearchString_WhenVoucherExists()
         {
             // Arrange
@@ -88,6 +103,21 @@ namespace Services.Voucher.Test.Unit.Controllers
             Assert.IsAssignableFrom<OkObjectResult>(result.Result);
             Assert.Equal(count, dtoCollection.Count());
             Assert.True(dtoCollection.All(x => x.Name == name));
+        }
+
+        [Fact]
+        public async Task GetVouchersByName_ShouldReturnEmptyCollection_WhenVoucherWithNameDoesNotExist()
+        {
+            // Arrange
+            string name = "ABC";
+
+            // Act
+            var result = await _controller.GetVouchersByName(name);
+            var dtoCollection = ParseActionResultAsOk<IEnumerable<VoucherDto>>(result.Result);
+
+            // Assert
+            Assert.IsAssignableFrom<OkObjectResult>(result.Result);
+            Assert.Empty(dtoCollection);
         }
 
         [Fact]
@@ -112,12 +142,27 @@ namespace Services.Voucher.Test.Unit.Controllers
         }
 
         [Fact]
+        public async Task GetVouchersByNameSearch_ShouldReturnEmptyCollection_WhenVoucherContainingNameDoesNotExist()
+        {
+            // Arrange
+            string search = "RNDM";
+
+            // Act
+            var result = await _controller.GetVouchersByNameSearch(search);
+            var dtoCollection = ParseActionResultAsOk<IEnumerable<VoucherDto>>(result.Result);
+
+            // Assert
+            Assert.IsAssignableFrom<OkObjectResult>(result.Result);
+            Assert.Empty(dtoCollection);
+        }
+
+        [Fact]
         public async void GetCheapestVoucherByProductCode_ShouldReturnCheapestVoucher_WhenProductCodeExists()
         {
             // Arrange
             string productCode = "Gbbrsh";
             var cheapestVoucherId = await Fixture.InsertVoucherWithProductCodeAndPrice(productCode, 5);
-            await Fixture.InsertVouchersWithProductCode(productCode, 10, 20, 10, false);
+            await Fixture.InsertVouchersWithProductCode(productCode, 10, 20, 10);
 
             // Act
             var result = await _controller.GetCheapestVoucherByProductCode(productCode);
@@ -127,6 +172,17 @@ namespace Services.Voucher.Test.Unit.Controllers
             Assert.IsAssignableFrom<OkObjectResult>(result.Result);
             Assert.True(dto != null);
             Assert.True(dto.Id == cheapestVoucherId);
+        }
+
+        [Fact]
+        public async void GetCheapestVoucherByProductCode_ShouldThrowCustomServiceException_WhenProductCodeDoesNotExist()
+        {
+            // Arrange
+            string productCode = "MrGbbrsh";
+            Func<Task<ActionResult<VoucherDto>>> funcToExecute = async () => await _controller.GetCheapestVoucherByProductCode(productCode);
+
+            // Assert
+            await funcToExecute.Should().ThrowExactlyAsync<CustomServiceException>();
         }
 
         // TODO: This is not all the tests that we would like to see + the above tests can be made much smarter.

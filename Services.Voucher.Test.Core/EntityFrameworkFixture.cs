@@ -31,14 +31,15 @@ namespace Services.Voucher.Test.Core
             return context;
         }
 
-        public async Task InsertVouchersWithProductCode(string productCode, int min, int max, double minPrice = 5, bool insertProductCode = true)
+        public async Task InsertVouchersWithProductCode(string productCode, int min, int max, double minPrice = 5)
         {
             var faker = new Faker();
             //Choose a random product code among the existing ones to associate with the new vouchers, for the sake of product code diversity
             var randomProductCode = faker.PickRandom(await _dbContext.ProductCodes.Select(pc => pc.Id).ToArrayAsync());
 
             //Insert the new product code if necessary
-            if (insertProductCode)
+            var productCodeInDb = await _dbContext.ProductCodes.FindAsync(productCode);
+            if (productCodeInDb == null)
             {
                 _dbContext.ProductCodes.Add(new EntityFramework.Models.ProductCode { Id = productCode });
             }
@@ -132,7 +133,7 @@ namespace Services.Voucher.Test.Core
 
             //Generate product codes and insert them.
             var productCodeFaker = new Faker<EntityFramework.Models.ProductCode>()
-                .RuleFor(pc => pc.Id, f => f.Random.AlphaNumeric(5));
+                .RuleFor(pc => pc.Id, f => f.Random.AlphaNumeric(5).ToUpperInvariant());
             var productCodes = productCodeFaker.GenerateBetween(40, 50);
             _dbContext.ProductCodes.AddRange(productCodes);
 
