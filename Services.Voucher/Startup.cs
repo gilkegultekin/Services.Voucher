@@ -13,6 +13,7 @@ using Services.Voucher.Core.Extensions;
 using Services.Voucher.EntityFramework.Contexts;
 using Services.Voucher.EntityFramework.MapperProfiles;
 using Services.Voucher.EntityFramework.Repository;
+using Services.Voucher.EntityFramework.Utilities;
 using Services.Voucher.MapperProfiles;
 using System;
 using System.Collections.Generic;
@@ -46,8 +47,7 @@ namespace Services.Voucher
                 builder.EnableSensitiveDataLogging();
             });
 
-            //TODO: Find a better way to register these profiles. Probably have to use reflection to find all subclasses of Profile.
-            services.AddAutoMapper(typeof(VoucherEntityProfile), typeof(VoucherDtoProfile));
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             services.AddSwaggerGen(options =>
             {
                 options.SwaggerDoc("v1", new OpenApiInfo
@@ -76,7 +76,7 @@ namespace Services.Voucher
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, VoucherContext voucherContext)
         {
-            SeedData(voucherContext);
+            DatabaseSeeder.Seed(voucherContext);
 
             if (env.IsDevelopment())
             {
@@ -100,41 +100,6 @@ namespace Services.Voucher
             {
                 endpoints.MapControllers();
             });
-        }
-
-        private void SeedData(VoucherContext voucherContext)
-        {
-            var text = File.ReadAllText($"{AppDomain.CurrentDomain.BaseDirectory}data.json");
-            var voucherModels = JsonConvert.DeserializeObject<IEnumerable<VoucherDto>>(text);
-            voucherContext.Vouchers.AddRange(voucherModels.Select(v => new EntityFramework.Models.Voucher
-            {
-                Id = v.Id,
-                Name = v.Name,
-                Price = v.Price,
-            }));
-
-            voucherContext.ProductCodes.AddRange(voucherModels
-                .SelectMany(v => v.ProductCodes.Split(','))
-                .Distinct()
-                .Select(s => new EntityFramework.Models.ProductCode
-                {
-                    Id = s,
-                }));
-
-            foreach (var voucherModel in voucherModels)
-            {
-                foreach (var productCode in voucherModel.ProductCodes.Split(',').Distinct())
-                {
-                    voucherContext.VoucherProductCodes.Add(new EntityFramework.Models.VoucherProductCode
-                    {
-                        Id = Guid.NewGuid(),
-                        VoucherId = voucherModel.Id,
-                        ProductCodeId = productCode,
-                    });
-                }
-                
-            }
-            voucherContext.SaveChanges();
         }
     }
 }

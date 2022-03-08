@@ -16,6 +16,9 @@ using Xunit;
 
 namespace Services.Voucher.Test.Unit.Controllers
 {
+    //Since the test classes in this assembly share the fixture instance (and therefore the in-memory DB), they shouldn't run in parallel.
+    //This attribute ensures that they run sequentially by placing them in the same test collection.
+    [Collection("Our Test Collection #1")]
     public class VoucherControllerTests : TestBase
     {
         private readonly VoucherController _controller;
@@ -126,10 +129,10 @@ namespace Services.Voucher.Test.Unit.Controllers
             // Arrange
             int count = 20;
             string search = "BX1CY";
-            await Fixture.InsertVouchersWithName("ABX1CYZ", 5);
-            await Fixture.InsertVouchersWithName("BX1CY4", 5);
-            await Fixture.InsertVouchersWithName("3BX1CY", 5);
-            await Fixture.InsertVouchersWithName("BX1CY", 5);
+            await Fixture.InsertVouchersWithName($"A{search}Z", 5);
+            await Fixture.InsertVouchersWithName($"{search}4", 5);
+            await Fixture.InsertVouchersWithName($"3{search}", 5);
+            await Fixture.InsertVouchersWithName($"{search}", 5);
 
             // Act
             var result = await _controller.GetVouchersByNameSearch(search);

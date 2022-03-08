@@ -51,7 +51,7 @@ namespace Services.Voucher.Test.Core
                 .RuleFor(v => v.Price, f => f.Random.Double(minPrice, 500));
             var vouchers = voucherFaker.GenerateBetween(min, max);
             _dbContext.Vouchers.AddRange(vouchers);
-            
+
             //Associate the vouchers created in the prev stage with the given product code (and the randomly chosen one at the top)
             var voucherProductCodes = new List<EntityFramework.Models.VoucherProductCode>();
             foreach (var voucher in vouchers)
@@ -60,7 +60,7 @@ namespace Services.Voucher.Test.Core
                 voucherProductCodes.Add(new EntityFramework.Models.VoucherProductCode { Id = faker.Random.Guid(), VoucherId = voucher.Id, ProductCodeId = randomProductCode });
             }
             _dbContext.VoucherProductCodes.AddRange(voucherProductCodes);
-            
+
             await _dbContext.SaveChangesAsync();
         }
 
@@ -117,6 +117,14 @@ namespace Services.Voucher.Test.Core
             //insert the link between the voucher and the product code
             _dbContext.VoucherProductCodes.Add(new EntityFramework.Models.VoucherProductCode { Id = Guid.NewGuid(), VoucherId = id, ProductCodeId = productCode.Id });
             await _dbContext.SaveChangesAsync();
+        }
+
+        public string GetRandomSubstring(string text)
+        {
+            var faker = new Faker();
+            var startIndex = faker.Random.Int(0, text.Length - 1);
+            var endIndex = faker.Random.Int(startIndex, text.Length - 1);
+            return text.Substring(startIndex, endIndex - startIndex + 1);
         }
 
         public void Dispose()
