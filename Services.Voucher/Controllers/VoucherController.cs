@@ -56,7 +56,7 @@ namespace Services.Voucher.Controllers
         [Route("{id}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult<VoucherDto>> GetVoucherById(Guid id)
+        public async Task<ActionResult<VoucherDto>> GetVoucherById([Required] Guid id)
         {
             var voucher = await _voucherRepository.GetVoucherById(id);
             if (voucher == null)
@@ -75,7 +75,7 @@ namespace Services.Voucher.Controllers
         [HttpGet]
         [Route("[action]")]
         [ProducesResponseType(200)]
-        public async Task<ActionResult<IEnumerable<VoucherDto>>> GetVouchersByName(string name)
+        public async Task<ActionResult<IEnumerable<VoucherDto>>> GetVouchersByName([Required] string name)
         {
             var vouchers = await _voucherRepository.GetVouchersByName(name);
             return Ok(_mapper.Map<IEnumerable<VoucherDto>>(vouchers));
@@ -89,7 +89,7 @@ namespace Services.Voucher.Controllers
         [HttpGet]
         [Route("[action]")]
         [ProducesResponseType(200)]
-        public async Task<ActionResult<IEnumerable<VoucherDto>>> GetVouchersByNameSearch(string search)
+        public async Task<ActionResult<IEnumerable<VoucherDto>>> GetVouchersByNameSearch([Required] string search)
         {
             var vouchers = await _voucherRepository.SearchVouchersByName(search);
             return Ok(_mapper.Map<IEnumerable<VoucherDto>>(vouchers));
@@ -104,7 +104,7 @@ namespace Services.Voucher.Controllers
         [Route("[action]")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        public async Task<ActionResult<VoucherDto>> GetCheapestVoucherByProductCode(string productCode)
+        public async Task<ActionResult<VoucherDto>> GetCheapestVoucherByProductCode([Required] string productCode)
         {
             var cheapest = await _voucherRepository.GetCheapestVoucherByProductCode(productCode);
             var dto = _mapper.Map<VoucherDto>(cheapest);
