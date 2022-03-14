@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="11.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="3.1.22" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="3.1.22" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.22" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="3.1.22" />
+    <PackageReference Include="MongoDB.Driver" Version="2.15.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Services.Voucher.Application\Services.Voucher.Application.csproj" />
+    <ProjectReference Include="..\Services.Voucher.Core\Services.Voucher.Core.csproj" />
+    <ProjectReference Include="..\Services.Voucher.Domain\Services.Voucher.Domain.csproj" />
+  </ItemGroup>
+
+</Project>

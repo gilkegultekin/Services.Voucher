@@ -36,6 +36,7 @@
     <ProjectReference Include="..\Services.Voucher.Core\Services.Voucher.Core.csproj" />
     <ProjectReference Include="..\Services.Voucher.Domain\Services.Voucher.Domain.csproj" />
     <ProjectReference Include="..\Services.Voucher.EntityFramework\Services.Voucher.EntityFramework.csproj" />
+    <ProjectReference Include="..\Services.Voucher.Persistence.MongoDB\Services.Voucher.Persistence.MongoDB.csproj" />
   </ItemGroup>
 	
 <PropertyGroup>

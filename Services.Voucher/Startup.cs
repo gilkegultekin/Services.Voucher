@@ -4,14 +4,22 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using MongoDB.Driver;
 using Serilog;
 using Services.Voucher.Application.Repository;
+using Services.Voucher.Application.Seeders;
 using Services.Voucher.Core.Extensions;
 using Services.Voucher.EntityFramework.Contexts;
 using Services.Voucher.EntityFramework.Repository;
 using Services.Voucher.EntityFramework.Utilities;
+using Services.Voucher.MapperProfiles;
+using Services.Voucher.Persistence.MongoDB.Contexts;
+using Services.Voucher.Persistence.MongoDB.Extensions;
+using Services.Voucher.Persistence.MongoDB.MapperProfiles;
+using Services.Voucher.Persistence.MongoDB.Settings;
 using System;
 using System.IO;
 using System.Reflection;
@@ -35,14 +43,18 @@ namespace Services.Voucher
             //Required by Serilog's CorrelationId enricher.
             services.AddHttpContextAccessor();
 
-            services.AddScoped<IVoucherRepository, VoucherRepository>();
-            services.AddDbContextPool<VoucherContext>(builder =>
-            {
-                builder.UseInMemoryDatabase(databaseName: "VoucherDB");
-                builder.EnableSensitiveDataLogging();
-            });
+            services.Configure<MongoDbSettings>(Configuration.GetSection("MongoDBSettings"));
+            services.AddMongoDbServices();
+
+            //services.AddScoped<IVoucherRepository, VoucherRepository>();
+            //services.AddDbContextPool<VoucherContext>(builder =>
+            //{
+            //    builder.UseInMemoryDatabase(databaseName: "VoucherDB");
+            //    builder.EnableSensitiveDataLogging();
+            //});
 
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+            //services.AddAutoMapper(typeof(VoucherMongoDbProfile), typeof(VoucherDtoProfile));
             services.AddSwaggerGen(options =>
             {
                 options.SwaggerDoc("v1", new OpenApiInfo
@@ -92,9 +104,10 @@ namespace Services.Voucher
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, VoucherContext voucherContext)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IDatabaseSeeder databaseSeeder)
         {
-            DatabaseSeeder.Seed(voucherContext);
+            //DatabaseSeeder.Seed(voucherContext);
+            databaseSeeder.Seed();
 
             if (env.IsDevelopment())
             {
