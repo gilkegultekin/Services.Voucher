@@ -52,6 +52,7 @@ namespace Services.Voucher
             //    builder.UseInMemoryDatabase(databaseName: "VoucherDB");
             //    builder.EnableSensitiveDataLogging();
             //});
+            //services.AddTransient<IDatabaseSeeder, DatabaseSeeder>();
 
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             //services.AddAutoMapper(typeof(VoucherMongoDbProfile), typeof(VoucherDtoProfile));
@@ -106,7 +107,6 @@ namespace Services.Voucher
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IDatabaseSeeder databaseSeeder)
         {
-            //DatabaseSeeder.Seed(voucherContext);
             databaseSeeder.Seed();
 
             if (env.IsDevelopment())

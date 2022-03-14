@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Services.Voucher.Application.Dto;
+using Services.Voucher.Application.Seeders;
 using Services.Voucher.EntityFramework.Contexts;
 using System;
 using System.Collections.Generic;
@@ -8,9 +9,16 @@ using System.Linq;
 
 namespace Services.Voucher.EntityFramework.Utilities
 {
-    public class DatabaseSeeder
+    public class DatabaseSeeder : IDatabaseSeeder
     {
-        public static void Seed(VoucherContext voucherContext)
+        private readonly VoucherContext voucherContext;
+
+        public DatabaseSeeder(VoucherContext voucherContext)
+        {
+            this.voucherContext = voucherContext;
+        }
+
+        public void Seed()
         {
             var text = File.ReadAllText($"{AppDomain.CurrentDomain.BaseDirectory}data.json");
             var voucherModels = JsonConvert.DeserializeObject<IEnumerable<VoucherDto>>(text);
